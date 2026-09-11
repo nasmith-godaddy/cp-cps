@@ -547,7 +547,7 @@ source: [diagrams/GoDaddy_R1_Hierarchy.mmd](diagrams/GoDaddy_R1_Hierarchy.mmd)
 
 ### <span id="page-14-0"></span> **1.3.2 Registration Authorities**
 
-Registration Authorities (RAs) evaluate and either approve or reject Subscriber certificate management transactions (including certificate requests, renewal and re-key requests, and revocation requests). Starfield serves as the sole RA for the Starfield PKI; Starfield does not delegate RA authority to unaffiliated third parties, but does rely on Delegated Third Parties for limited, well-defined functions as described below.
+Registration Authorities (RAs) evaluate and either approve or reject Subscriber certificate management transactions (including certificate requests, renewal and re-key requests, and revocation requests). Starfield serves as the sole RA for the Starfield PKI; Starfield does not delegate RA authority to unaffiliated third parties, but MAY rely on Delegated Third Parties for limited, well-defined functions as described below.
 
 Root CAs. For Starfield Root CAs, the Subscribers are Subordinate CAs under Starfield's control. The RA function for these certificates is performed entirely manually by authorized Starfield PKI personnel, and certificate issuance additionally requires a deliberate, multi-person authorized command (see Section 4.3.1.1).
 
