@@ -469,6 +469,10 @@ The OID-arcs associated with this document are **2.16.840.1.114413** and **2.16.
 |         |                    | • Updated the following sections: 1.3.1, 1.6, 1.6.1, 1.6.2, 2.3, 3.2.2.4, 3.2.2.4.4, 3.2.2.8.1, 3.2.2.9, 3.2.2.10, 4.2.1, 4.2.2, 4.10.2, 5.4.1, 5.4.3, 6.1.5.1, 6.1.5.2, 6.1.5.3, 6.1.6, 6.3.2, 7.1.1, 7.1.3, 7.1.4.1, 7.1.4.2.1, 7.2.2.1, 7.2.2.2, 7.3.1, 8.4, 8.6, 10.2.1, 10.4.3, 10.4.4, 10.4.5, 10.4.6, 10.4.7, 10.4.8, 10.4.9, 10.4.10 |
 |         |                    | • Added the following sections: 3.2.2.8.1, 3.2.2.9.1, 3.2.2.9.2                                         |
 |         |                    | • Removed the following sections: 10.1.12                                                                      |
+| 5.07	  | September 14, 2026  | • Updated section 1.3.2 to distinguish automated and manual processes for validation |
+|         |                    | • Updated section 3.2 to clarify EV Roles |
+|         |                    | • Updated section 4.2.1 EV data-reuse table to include "certificate requester" |
+|         |                    | • Added definition of "Verified Method of Communication" |
 ## <span id="page-11-0"></span> **1.3 PKI Participants**
 
 This CP/CPS is applicable to all certificates issued by Starfield CAs within the Starfield PKI. This document defines the specific communities for which a specific class or type of certificate is applicable, specific Starfield PKI practices and requirements for the issuance and management of such certificates, and the intended purposes and uses of such certificates.
@@ -543,15 +547,26 @@ source: [diagrams/GoDaddy_R1_Hierarchy.mmd](diagrams/GoDaddy_R1_Hierarchy.mmd)
 
 ### <span id="page-14-0"></span> **1.3.2 Registration Authorities**
 
-Registration Authorities (RAs) evaluate and either approve or reject Subscriber certificate management transactions (including certificate requests, renewal and re-key requests, and revocation requests). Starfield serves as the sole RA for the Starfield PKI.
+Registration Authorities (RAs) evaluate and either approve or reject Subscriber certificate management transactions (including certificate requests, renewal and re-key requests, and revocation requests). Starfield serves as the sole RA for the Starfield PKI; Starfield does not delegate RA authority to unaffiliated third parties, but does rely on Delegated Third Parties for limited, well-defined functions as described below.
 
-Obligations of the Registration Authorities (RAs) within the Starfield PKI include:
+Root CAs. For Starfield Root CAs, the Subscribers are Subordinate CAs under Starfield's control. The RA function for these certificates is performed entirely manually by authorized Starfield PKI personnel, and certificate issuance additionally requires a deliberate, multi-person authorized command (see Section 4.3.1.1).
 
-- Obtaining a public-key from the Subscriber
-- Identifying and authenticating Subscribers in accordance with this CP/CPS
-- Verifying that the Subscriber possesses the asymmetric private key corresponding to the public-key submitted for certification
-- Receiving, authenticating and processing certificate revocation requests
-- Providing suitable training to personnel performing RA functions.
+Issuing CAs. For Starfield Issuing CAs, the RA function combines automated and manual processing, varying by certificate type and risk profile:
+
+- Domain Validated (DV) Certificates: Domain authorization/control validation (Section 3.2.2.4), CAA processing (Section 3.2.2.8), and Multi-Perspective Issuance Corroboration (Section 3.2.2.10) are fully automated. Automation in this context performs substantive validation determinations (i.e., pass/fail decisions on domain control and CAA permission), not merely workflow routing. Certificate requests flagged as high-risk by internal or third-party fraud/phishing data sources (Section 4.2.1) are automatically routed for mandatory manual review before issuance.
+- Organization Validated (OV) Certificates: Domain control validation is automated as above. Organization identity, address, and DBA/tradename verification (Sections 3.2.2.1–3.2.2.2) and validation of the Applicant Representative's authority (Section 3.2.5) are performed manually by trained Validation Specialists, using automated tooling to query Reliable Data Sources but requiring human review and sign-off of the results.
+- Extended Validation (EV) Certificates: All EV-specific verification and approval steps (Section 3.2, EV bullets) are performed manually by trained Validation Specialists. Consistent with Section 5.2.4, approval of an EV Certificate request must be performed by a person other than the person who performed the underlying verification (separation of duties); this approval can never be automated.
+
+Functions that always require human approval, regardless of certificate type:
+
+- Approval of any certificate request flagged as high-risk, suspicious, or previously rejected/revoked for fraud (Section 4.2.1);
+- All EV verification and approval steps (separation of duties per Section 5.2.4);
+- Root CA certificate issuance (Section 4.3.1.1);
+- Any manual override of an automated validation failure.
+
+**Role of automation** - Automated systems perform domain control and CAA validation determinations, generate and check Random Values/Request Tokens, run Multi-Perspective Issuance Corroboration, and lint each to-be-signed certificate for technical conformance with the Baseline Requirements prior to signing (Sections 4.3.1.2–4.3.1.3). Automation is not limited to workflow routing — for DV issuance, the automated validation result is itself the basis for issuance authorization, subject to linting and CAA gating controls that can block issuance even after validation passes.
+
+**Delegated Third Parties** - Where a Delegated Third Party (as defined in Section 1.6.1) participates in the Certificate Management Process — for example, providing or hosting a Random Value used in DNS Change domain validation (Section 3.2.2.4.7) — Starfield remains fully responsible for the resulting validation and issuance decision. Starfield authorizes Delegated Third Parties only under a written agreement that obligates them to comply with the applicable requirements of this CP/CPS and the Baseline Requirements, and Starfield does not treat any output from a Delegated Third Party as a substitute for Starfield's own validation, approval, or issuance-authorization functions. 
 
 For the Starfield Root CAs the Subscribers are Subordinate CAs that are under the control of Starfield. Accordingly, the RA function for these CAs is performed manually by authorized Starfield PKI personnel.
 
@@ -775,6 +790,7 @@ All changes to this document are approved by a quorum of The Starfield GPC.
 | Valid Certificate                                  |           | A Certificate that passes the validation procedure specified in [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280).                                                                                                      |
 | Validation Specialist                              |           | Someone who performs the information verification duties specified by the BRs.                                                                                                                                         |
 | Validity Period                                    |           | From [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280): "The period of time from notBefore through notAfter, inclusive."                                                                                                 |
+| Verified Method of Communication                   |           | The use of a telephone number, a fax number, an email address, or postal delivery address, confirmed by the CA in accordance with Section 3.2.2.1 as a reliable way of communicating with the Applicant.                                                                                                 |
 | WHOIS                                              |           | Information retrieved directly from the Domain Name Registrar or registry operator via the protocol defined in [RFC 3912](https://datatracker.ietf.org/doc/html/rfc3912), the Registry Data Access Protocol defined in [RFC 7482](https://datatracker.ietf.org/doc/html/rfc7482), or an HTTPS website. |
 | Wildcard Certificate                               |           | A Certificate containing at least one Wildcard Domain Name in the Subject Alternative Names in the Certificate.                                                                                                        |
 | Wildcard Domain Name                               |           | A string starting with "\*." (U+002A ASTERISK, U+002E FULL STOP) immediately followed by a Fully-Qualified Domain Name.                                                                                                |
@@ -899,12 +915,19 @@ For High Assurance Organizational Validated SSL Server Certificate Subscribers, 
 
 For Extended Validation SSL Server Certificate Subscribers, Starfield verifies:
 
-- Legal Existence and Identity
-- Assumed Name (optional)
-- Physical Existence (business presence at a physical location)
-- Operational Existence (if records indicate that the organization is less than three years old)
-- Domain ownership or exclusive right to use
-- Name, title, and authority of contract signer, and certificate approver
+- Legal Existence and Identity;
+- Assumed name, when applicable;
+- Physical existence and business presence;
+- Operational existence, when required;
+- A Verified Method of Communication with the Applicant;
+- Control of the domain name(s) included in the Certificate;
+- The name, title, and authority of the Contract Signer, Certificate Approver, and Certificate Requester, as applicable;
+- Authorization of the Subscriber Agreement; and
+- Approval of the EV Certificate Request.
+
+Starfield verifies Applicant organization information using applicable authoritative or independent sources, as described in Sections 3.2.2.1 through 3.2.2.3. As part of verifying the authority of individuals acting in EV roles, Starfield contacts the Applicant using a verified telephone number and confirms the individual's authority to act on behalf of the Applicant in the applicable role.
+
+Starfield verifies that the Contract Signer is authorized to enter into the Subscriber Agreement on behalf of the Applicant, that the Certificate Approver is authorized to approve EV Certificate Requests, and that Certificate Requesters are authorized to submit EV Certificate Requests on behalf of the Applicant. The applicable validations and approvals must be completed prior to issuance, and — consistent with Section 5.2.4 — approval of the EV Certificate Request must be performed by a person other than the Validation Specialist who verified the underlying information.
 
 *Note: Effective as of 1 October 2020, before using an incorporating or registration agency for validation of an Extended Validation Certificate, that agency is disclosed publicly via <https://ssltools.godaddy.com/compliance/Approved_Incorporating_and_Registration_Agencies.xlsx>. This document, Approved Incorporating and Registration Agencies, contains the name of the agency, jurisdiction(s) and website information as well as a document history including version numbers and publication dates for all edits.* 
 
@@ -1345,7 +1368,7 @@ The age of all data used to support issuance of an EV Certificate (before revali
 - Physical Existence – 398 days
 - Operational Existence – 398 days
 - Domain ownership or exclusive right to use – 398 days
-- Name, title, and authority of contract signer, and certificate approver – 398 days, unless a contract between Starfield and the Applicant specifies a different term, in which case, the term specified in such contract controls.
+- Name, title, and authority of contract signer, certificate approver, and certificate requester – 398 days, unless a contract between Starfield and the Applicant specifies a different term, in which case, the term specified in such contract controls.
 
 The 398-day period set forth above SHALL begin to run on the date the information was collected by Starfield.
 
